@@ -80,15 +80,22 @@ public class QscFeedingUtils {
         try {
             if (reportPath != null && !reportPath.trim().isEmpty()) {
                 File resultFile = new File(reportPath);
-                resultFile.getParentFile().mkdirs();
-                if (!resultFile.exists()) {
-                    resultFile.createNewFile();
-                }
+                createFileIfNotExists(resultFile);
                 objectMapper.writerWithDefaultPrettyPrinter().writeValue(resultFile, responses);
                 log.info("Reported to file (file = {})", resultFile.getAbsolutePath());
             }
         } catch (Exception e) {
             log.error("Not reported", e);
+        }
+    }
+
+    private static void createFileIfNotExists(File resultFile) throws IOException {
+        File parentFile = resultFile.getParentFile();
+        if (parentFile != null) {
+            parentFile.mkdirs();
+        }
+        if (!resultFile.exists()) {
+            resultFile.createNewFile();
         }
     }
 }
