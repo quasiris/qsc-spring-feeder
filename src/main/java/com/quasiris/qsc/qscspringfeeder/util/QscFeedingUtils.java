@@ -77,14 +77,18 @@ public class QscFeedingUtils {
     }
 
     public static void report(List<JsonNode> responses, String reportPath) throws IOException {
-        if (reportPath != null && !reportPath.trim().isEmpty()) {
-            File resultFile = new File(reportPath);
-            resultFile.getParentFile().mkdirs();
-            if (!resultFile.exists()) {
-                resultFile.createNewFile();
+        try {
+            if (reportPath != null && !reportPath.trim().isEmpty()) {
+                File resultFile = new File(reportPath);
+                resultFile.getParentFile().mkdirs();
+                if (!resultFile.exists()) {
+                    resultFile.createNewFile();
+                }
+                objectMapper.writerWithDefaultPrettyPrinter().writeValue(resultFile, responses);
+                log.info("Reported to file (file = {})", resultFile.getAbsolutePath());
             }
-            objectMapper.writerWithDefaultPrettyPrinter().writeValue(resultFile, responses);
-            log.info("Reported to file (file = {})", resultFile.getAbsolutePath());
+        } catch (Exception e) {
+            log.error("Not reported", e);
         }
     }
 }

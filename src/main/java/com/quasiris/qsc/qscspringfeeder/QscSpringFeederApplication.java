@@ -38,9 +38,12 @@ public class QscSpringFeederApplication implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws IOException {
+        assertConfiguration();
+
         log.info("url = {}", urlPrefix);
         log.info("tenant = {}", tenant);
         log.info("feedingCode = {}", feedingCode);
+        log.debug("batchSize = {}", batchSize);
 
         List<QscFeedingDocument> docs = QscFeedingUtils.readDocumentsFromFile(filePath);
         log.debug("docs.size() = {}", docs.size());
@@ -49,6 +52,14 @@ public class QscSpringFeederApplication implements ApplicationRunner {
                 (docs, xQscToken, urlPrefix, tenant, feedingCode, batchSize);
         QscFeedingUtils.report(responses, reportPath);
         log.debug("responses = {}", responses);
+    }
+
+    private void assertConfiguration() {
+        assert !urlPrefix.isEmpty();
+        assert !tenant.isEmpty();
+        assert !feedingCode.isEmpty();
+        assert !xQscToken.isEmpty();
+        assert !filePath.isEmpty();
     }
 
 }
