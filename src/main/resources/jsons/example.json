@@ -1,0 +1,39 @@
+[
+  {
+    "header": {
+      "id": "0815",
+      "action": "update"
+    },
+    "payload": {
+      "id": "foo",
+      "title": "bar",
+      "attributes": [
+        {
+          "id": "farbe",
+          "name": "Farbe",
+          "values": [
+            "weiß"
+          ],
+          "dataType": "string"
+        },
+        {
+          "id": "breite",
+          "name": "Breite",
+          "values": [
+            120
+          ],
+          "dataType": "long",
+          "unit": "mm"
+        },
+        {
+          "id": "hoehe",
+          "name": "Höehe",
+          "min": 50,
+          "max": 100,
+          "dataType": "double",
+          "unit": "cm"
+        }
+      ]
+    }
+  }
+]
