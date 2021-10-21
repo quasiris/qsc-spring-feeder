@@ -50,10 +50,12 @@ public class QscSpringFeederApplication implements ApplicationRunner {
         List<QscFeedingDocument> docs = TransformHelper.transformRawParamsToHeaderPayloadStructure(filePath);
         log.debug("docs.size() = {}", docs.size());
 
-        List<JsonNode> responses = QscFeedingUtils.postFeeds
-                (docs, xQscToken, urlPrefix, tenant, feedingCode, batchSize);
-        QscFeedingUtils.report(responses, reportPath);
-        log.debug("responses = {}", responses);
+        QscFeedingUtils.report(docs, "report/log-report.json");
+
+//        List<JsonNode> responses = QscFeedingUtils.postFeeds
+//                (docs, xQscToken, urlPrefix, tenant, feedingCode, batchSize);
+//        QscFeedingUtils.report(responses, reportPath);
+//        log.debug("responses = {}", responses);
     }
 
     private void assertConfiguration() {

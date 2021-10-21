@@ -10,10 +10,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.lang.Nullable;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -61,7 +58,7 @@ public class TransformHelper {
     }
 
     private static void addValidAttributes(LinkedHashMap<String, Object> feedingEntry, List<Attribute> attributes) {
-        for (String key : feedingEntry.keySet()) {
+        for (String key : new HashSet<>(feedingEntry.keySet())) {
             Attribute attribute = convertToAttributeIfPossible(key, feedingEntry);
             if (attribute != null) {
                 feedingEntry.remove(key);
