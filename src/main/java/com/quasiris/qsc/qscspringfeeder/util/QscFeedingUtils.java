@@ -76,7 +76,7 @@ public class QscFeedingUtils {
         return result;
     }
 
-    public static void report(List<JsonNode> responses, String reportPath) throws IOException {
+    public static void report(List<?> responses, String reportPath) throws IOException {
         try {
             if (reportPath != null && !reportPath.trim().isEmpty()) {
                 File resultFile = new File(reportPath);

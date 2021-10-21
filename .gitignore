@@ -31,4 +31,4 @@ build/
 
 ### VS Code ###
 .vscode/
-/src/main/resources/jsons/example-not-visible-in-git.json
+/src/main/resources/jsons/ignore-by-git/*

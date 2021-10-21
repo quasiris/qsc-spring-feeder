@@ -3,6 +3,7 @@ package com.quasiris.qsc.qscspringfeeder;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.quasiris.qsc.qscspringfeeder.dto.QscFeedingDocument;
 import com.quasiris.qsc.qscspringfeeder.util.QscFeedingUtils;
+import com.quasiris.qsc.qscspringfeeder.util.TransformHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
@@ -45,7 +46,8 @@ public class QscSpringFeederApplication implements ApplicationRunner {
         log.info("feedingCode = {}", feedingCode);
         log.debug("batchSize = {}", batchSize);
 
-        List<QscFeedingDocument> docs = QscFeedingUtils.readDocumentsFromFile(filePath);
+//        List<QscFeedingDocument> docs = QscFeedingUtils.readDocumentsFromFile(filePath);
+        List<QscFeedingDocument> docs = TransformHelper.transformRawParamsToHeaderPayloadStructure(filePath);
         log.debug("docs.size() = {}", docs.size());
 
         List<JsonNode> responses = QscFeedingUtils.postFeeds
