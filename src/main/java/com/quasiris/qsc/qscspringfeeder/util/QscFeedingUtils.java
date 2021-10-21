@@ -11,7 +11,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -70,8 +69,8 @@ public class QscFeedingUtils {
 
     private static void tryReportPushedAndRemainData(List<JsonNode> responses) {
         try {
-            report(responses, PUSHED_ITEMS_REPORT_PATH);
-            report(responses, REMAIN_ITEMS_REPORT_PATH);
+            Reporter.report(responses, PUSHED_ITEMS_REPORT_PATH);
+            Reporter.report(responses, REMAIN_ITEMS_REPORT_PATH);
             log.error("Problems when trying to push data. Not pushed data collected in {}, pushed responses collected in {}", REMAIN_ITEMS_REPORT_PATH, PUSHED_ITEMS_REPORT_PATH);
         } catch (Exception ex) {
             log.info("We could not collect remain and pushed data");
@@ -91,28 +90,5 @@ public class QscFeedingUtils {
         docs.clear();
         docs.addAll(remainDocs);
         return result;
-    }
-
-    public static void report(List<?> responses, String reportPath) throws IOException {
-        try {
-            if (reportPath != null && !reportPath.trim().isEmpty()) {
-                File resultFile = new File(reportPath);
-                createFileIfNotExists(resultFile);
-                objectMapper.writerWithDefaultPrettyPrinter().writeValue(resultFile, responses);
-                log.info("Reported to file (file = {})", resultFile.getAbsolutePath());
-            }
-        } catch (Exception e) {
-            log.error("Not reported", e);
-        }
-    }
-
-    private static void createFileIfNotExists(File resultFile) throws IOException {
-        File parentFile = resultFile.getParentFile();
-        if (parentFile != null) {
-            parentFile.mkdirs();
-        }
-        if (!resultFile.exists()) {
-            resultFile.createNewFile();
-        }
     }
 }

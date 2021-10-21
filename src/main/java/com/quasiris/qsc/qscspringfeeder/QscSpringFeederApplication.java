@@ -3,6 +3,7 @@ package com.quasiris.qsc.qscspringfeeder;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.quasiris.qsc.qscspringfeeder.dto.QscFeedingDocument;
 import com.quasiris.qsc.qscspringfeeder.util.QscFeedingUtils;
+import com.quasiris.qsc.qscspringfeeder.util.Reporter;
 import com.quasiris.qsc.qscspringfeeder.util.TransformHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -50,12 +51,13 @@ public class QscSpringFeederApplication implements ApplicationRunner {
         List<QscFeedingDocument> docs = TransformHelper.transformRawParamsToHeaderPayloadStructure(filePath);
         log.debug("docs.size() = {}", docs.size());
 
-        QscFeedingUtils.report(docs, "report/log-report.json");
+        Reporter.report(docs, "report/log-report.json");
 
-//        List<JsonNode> responses = QscFeedingUtils.postFeeds
-//                (docs, xQscToken, urlPrefix, tenant, feedingCode, batchSize);
-//        QscFeedingUtils.report(responses, reportPath);
-//        log.debug("responses = {}", responses);
+        List<JsonNode> responses = QscFeedingUtils.postFeeds
+                (docs, xQscToken, urlPrefix, tenant, feedingCode, batchSize);
+        Reporter.report(responses, reportPath);
+        log.info("Push feeding successfully completed, count of requests = {}", responses.size());
+        log.debug("responses = {}", responses);
     }
 
     private void assertConfiguration() {
