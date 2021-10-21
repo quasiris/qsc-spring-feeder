@@ -75,7 +75,7 @@ public class TransformHelper {
             String attrTypeKey = matcher.group(REGEX_TYPE_GROUP);
             AttributeDataType attributeDataType = AttributeDataType.findByKey(attrTypeKey);
             if (attributeDataType != null) {
-                return new Attribute(null, attrName, attributeDataType, Collections.singletonList(feedingMap.get(key)));
+                return new Attribute(key, attrName, attributeDataType, Collections.singletonList(feedingMap.get(key)));
             }
         }
         return null;

@@ -59,7 +59,6 @@ public class QscSpringFeederApplication implements ApplicationRunner {
                 (docs, xQscToken, urlPrefix, tenant, feedingCode, batchSize);
         Reporter.report(responses, reportPath);
         log.info("Push feeding successfully completed, count of requests = {}", responses.size());
-        log.debug("responses = {}", responses);
     }
 
     private void assertConfiguration() {
