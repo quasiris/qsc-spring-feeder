@@ -85,7 +85,7 @@ public class QscFeedingUtils {
             remainDocs.addAll(docs.subList(batchSize, docs.size()));
         }
         log.debug("docsToSend.size() = {}", docsToSend.size());
-        log.debug("remainDocs.size() = {}", remainDocs.size());
+        log.info("remainDocs.size() = {}", remainDocs.size());
         HttpEntity<List<QscFeedingDocument>> request = new HttpEntity<>(docsToSend, headers);
         JsonNode result = restTemplate.postForObject(uri, request, JsonNode.class);
         docs.clear();
