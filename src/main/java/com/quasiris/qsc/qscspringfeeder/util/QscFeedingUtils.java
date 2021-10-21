@@ -22,6 +22,8 @@ public class QscFeedingUtils {
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private static final RestTemplate restTemplate = new RestTemplate();
     private static final String X_QSC_TOKEN_HEADER_NAME = "X-QSC-Token";
+    private static final String REMAIN_ITEMS_REPORT_PATH = "report/remain-items.json";
+    private static final String PUSHED_ITEMS_REPORT_PATH = "report/pushed-items.json";
 
     public static List<QscFeedingDocument> readDocumentsFromFile(String filePath) throws IOException {
         return objectMapper.readValue(new ClassPathResource(filePath).getFile(),
@@ -55,10 +57,25 @@ public class QscFeedingUtils {
         }
         List<JsonNode> responses = new ArrayList<>();
         List<QscFeedingDocument> docsToSend = new ArrayList<>(docs);
-        while (!docsToSend.isEmpty()) {
-            responses.add(sendBatch(docsToSend, headers, uri, batchSize));
+        try {
+            while (!docsToSend.isEmpty()) {
+                responses.add(sendBatch(docsToSend, headers, uri, batchSize));
+            }
+        } catch (Exception e) {
+            tryReportPushedAndRemainData(responses);
+            throw new RuntimeException("Problems when trying to push data");
         }
         return responses;
+    }
+
+    private static void tryReportPushedAndRemainData(List<JsonNode> responses) {
+        try {
+            report(responses, PUSHED_ITEMS_REPORT_PATH);
+            report(responses, REMAIN_ITEMS_REPORT_PATH);
+            log.error("Problems when trying to push data. Not pushed data collected in {}, pushed responses collected in {}", REMAIN_ITEMS_REPORT_PATH, PUSHED_ITEMS_REPORT_PATH);
+        } catch (Exception ex) {
+            log.info("We could not collect remain and pushed data");
+        }
     }
 
     private static JsonNode sendBatch(List<QscFeedingDocument> docs, HttpHeaders headers, String uri, int batchSize) {
