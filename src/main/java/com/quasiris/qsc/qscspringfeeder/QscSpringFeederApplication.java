@@ -19,6 +19,8 @@ import java.util.List;
 @Slf4j
 public class QscSpringFeederApplication implements ApplicationRunner {
 
+    private static final String LOG_REPORT_FILE_PATH = "report/log-report.json";
+
     @Value("${app.url}")
     String urlPrefix;
     @Value("${app.tenant}")
@@ -51,7 +53,7 @@ public class QscSpringFeederApplication implements ApplicationRunner {
         List<QscFeedingDocument> docs = TransformHelper.transformRawParamsToHeaderPayloadStructure(filePath);
         log.debug("docs.size() = {}", docs.size());
 
-        Reporter.report(docs, "report/log-report.json");
+        Reporter.report(docs, LOG_REPORT_FILE_PATH);
 
         List<JsonNode> responses = QscFeedingUtils.postFeeds
                 (docs, xQscToken, urlPrefix, tenant, feedingCode, batchSize);

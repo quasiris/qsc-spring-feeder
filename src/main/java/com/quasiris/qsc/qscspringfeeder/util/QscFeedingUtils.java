@@ -61,16 +61,17 @@ public class QscFeedingUtils {
                 responses.add(sendBatch(docsToSend, headers, uri, batchSize));
             }
         } catch (Exception e) {
-            tryReportPushedAndRemainData(responses);
-            throw new RuntimeException("Problems when trying to push data");
+            log.error("error: ", e);
+            tryReportPushedAndRemainData(responses, docsToSend);
+            throw new RuntimeException("Problems when trying to push data", e);
         }
         return responses;
     }
 
-    private static void tryReportPushedAndRemainData(List<JsonNode> responses) {
+    private static void tryReportPushedAndRemainData(List<JsonNode> responses, List<QscFeedingDocument> docsToSend) {
         try {
             Reporter.report(responses, PUSHED_ITEMS_REPORT_PATH);
-            Reporter.report(responses, REMAIN_ITEMS_REPORT_PATH);
+            Reporter.report(docsToSend, REMAIN_ITEMS_REPORT_PATH);
             log.error("Problems when trying to push data. Not pushed data collected in {}, pushed responses collected in {}", REMAIN_ITEMS_REPORT_PATH, PUSHED_ITEMS_REPORT_PATH);
         } catch (Exception ex) {
             log.info("We could not collect remain and pushed data");
