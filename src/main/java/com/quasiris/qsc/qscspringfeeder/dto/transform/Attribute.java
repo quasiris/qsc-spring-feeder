@@ -18,4 +18,10 @@ public class Attribute {
     private String name;
     private AttributeDataType dataType;
     private List<?> values;
+
+    public Attribute(String id, String name, AttributeDataType dataType) {
+        this.id = id;
+        this.name = name;
+        this.dataType = dataType;
+    }
 }

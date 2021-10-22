@@ -6,6 +6,7 @@ import com.quasiris.qsc.qscspringfeeder.dto.Header;
 import com.quasiris.qsc.qscspringfeeder.dto.QscFeedingDocument;
 import com.quasiris.qsc.qscspringfeeder.dto.transform.Attribute;
 import com.quasiris.qsc.qscspringfeeder.dto.transform.AttributeDataType;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.lang.Nullable;
 
@@ -13,6 +14,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class TransformHelper {
 
@@ -25,6 +27,7 @@ public class TransformHelper {
     private static final String REGEX_NAME_GROUP = "name";
     private static final String REGEX_TYPE_GROUP = "type";
     private static final Pattern attributePattern = Pattern.compile("attr_(?<type>[btn])_(?<name>.+)");
+    private static final Pattern splitPattern = Pattern.compile("\\s*,\\s*");
 
 
     public static List<QscFeedingDocument> transformRawParamsToHeaderPayloadStructure(String srcFile) throws IOException {
@@ -75,10 +78,25 @@ public class TransformHelper {
             String attrTypeKey = matcher.group(REGEX_TYPE_GROUP);
             AttributeDataType attributeDataType = AttributeDataType.findByKey(attrTypeKey);
             if (attributeDataType != null) {
-                return new Attribute(key, attrName, attributeDataType, Collections.singletonList(feedingMap.get(key)));
+                Object value = feedingMap.get(key);
+                Attribute attribute = new Attribute(key, attrName, attributeDataType);
+                assignAttributeValues(attributeDataType, value, attribute);
+                return attribute;
             }
         }
         return null;
+    }
+
+    private static void assignAttributeValues(AttributeDataType attributeDataType, Object value, Attribute attribute) {
+        if (attributeDataType == AttributeDataType.STRING) {
+            String stringValue = (String) value;
+            List<String> values = Arrays.stream(splitPattern.split(stringValue))
+                    .filter(s -> !StringUtils.isBlank(s))
+                    .collect(Collectors.toList());
+            attribute.setValues(values);
+        } else {
+            attribute.setValues(Collections.singletonList(value));
+        }
     }
 
 
