@@ -10,7 +10,7 @@ import org.springframework.lang.Nullable;
 public enum AttributeDataType {
 
     STRING("t", "string"),
-    NUMBER("n", "number"),
+    NUMBER("n", "double"),
     BOOLEAN("b", "boolean");
 
     private final String key;
