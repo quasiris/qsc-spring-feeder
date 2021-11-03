@@ -12,6 +12,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -35,6 +36,11 @@ public class QscSpringFeederApplication implements ApplicationRunner {
     String reportPath;
     @Value("${app.batch.size}")
     int batchSize;
+    @Value("${app.continue.flag}")
+    boolean continuePreviousWork;
+    @Value("${app.continue.path}")
+    String continuePath;
+
 
     public static void main(String[] args) {
         SpringApplication.run(QscSpringFeederApplication.class, args);
@@ -48,9 +54,14 @@ public class QscSpringFeederApplication implements ApplicationRunner {
         log.info("tenant = {}", tenant);
         log.info("feedingCode = {}", feedingCode);
         log.debug("batchSize = {}", batchSize);
+        List<QscFeedingDocument> docs;
+        if (continuePreviousWork) {
+            docs = QscFeedingUtils.readDocumentsFromFile(new File(continuePath));
+        } else {
+//            docs = QscFeedingUtils.readDocumentsFromFile(new ClassPathResource(filePath).getFile());
+            docs = TransformHelper.transformRawParamsToHeaderPayloadStructure(filePath);
+        }
 
-//        List<QscFeedingDocument> docs = QscFeedingUtils.readDocumentsFromFile(filePath);
-        List<QscFeedingDocument> docs = TransformHelper.transformRawParamsToHeaderPayloadStructure(filePath);
         log.debug("docs.size() = {}", docs.size());
 
         Reporter.report(docs, LOG_REPORT_FILE_PATH);

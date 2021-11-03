@@ -6,12 +6,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.quasiris.qsc.qscspringfeeder.dto.QscFeedingDocument;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,9 +26,8 @@ public class QscFeedingUtils {
     private static final String PUSHED_ITEMS_REPORT_PATH = "report/pushed-items.json";
     public static final int RETRY_COUNT = 5;
 
-    public static List<QscFeedingDocument> readDocumentsFromFile(String filePath) throws IOException {
-        return objectMapper.readValue(new ClassPathResource(filePath).getFile(),
-                new TypeReference<>() {
+    public static List<QscFeedingDocument> readDocumentsFromFile(File file) throws IOException {
+        return objectMapper.readValue(file, new TypeReference<>() {
                 });
     }
 
