@@ -23,6 +23,7 @@ public class QscFeedingUtils {
     private static final String X_QSC_TOKEN_HEADER_NAME = "X-QSC-Token";
     private static final String REMAIN_ITEMS_REPORT_PATH = "report/remain-items.json";
     private static final String PUSHED_ITEMS_REPORT_PATH = "report/pushed-items.json";
+    public static final int RETRY_COUNT = 5;
 
     public static List<QscFeedingDocument> readDocumentsFromFile(String filePath) throws IOException {
         return objectMapper.readValue(new ClassPathResource(filePath).getFile(),
@@ -84,12 +85,25 @@ public class QscFeedingUtils {
         if (docsToSend.size() != docs.size()) {
             remainDocs.addAll(docs.subList(batchSize, docs.size()));
         }
-        log.debug("docsToSend.size() = {}", docsToSend.size());
-        log.info("remainDocs.size() = {}", remainDocs.size());
-        HttpEntity<List<QscFeedingDocument>> request = new HttpEntity<>(docsToSend, headers);
-        JsonNode result = restTemplate.postForObject(uri, request, JsonNode.class);
+        JsonNode result = tryToSendBatch(headers, uri, docsToSend, remainDocs);
         docs.clear();
         docs.addAll(remainDocs);
         return result;
+    }
+
+    private static JsonNode tryToSendBatch(HttpHeaders headers, String uri, List<QscFeedingDocument> docsToSend, List<QscFeedingDocument> remainDocs) {
+        int numberOfTrying = 0;
+        while (numberOfTrying <= RETRY_COUNT) {
+            numberOfTrying++;
+            try {
+                log.debug("docsToSend.size() = {}", docsToSend.size());
+                log.info("remainDocs.size() = {}", remainDocs.size());
+                HttpEntity<List<QscFeedingDocument>> request = new HttpEntity<>(docsToSend, headers);
+                return restTemplate.postForObject(uri, request, JsonNode.class);
+            } catch (Exception e) {
+                log.error("e: ", e);
+            }
+        }
+        throw new RuntimeException(String.format("Could not send the data to the server, (RETRY_COUNT = %o)", RETRY_COUNT));
     }
 }
