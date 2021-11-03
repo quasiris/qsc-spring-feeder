@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 @Slf4j
 public class QscFeedingUtils {
@@ -25,6 +26,7 @@ public class QscFeedingUtils {
     private static final String REMAIN_ITEMS_REPORT_PATH = "report/remain-items.json";
     private static final String PUSHED_ITEMS_REPORT_PATH = "report/pushed-items.json";
     public static final int RETRY_COUNT = 5;
+    static Scanner scanner = new Scanner(System.in);
 
     public static List<QscFeedingDocument> readDocumentsFromFile(File file) throws IOException {
         return objectMapper.readValue(file, new TypeReference<>() {
@@ -95,6 +97,7 @@ public class QscFeedingUtils {
         int numberOfTrying = 0;
         while (numberOfTrying <= RETRY_COUNT) {
             numberOfTrying++;
+            doYouWantToContinue(numberOfTrying);
             try {
                 log.info("docsToSend.size() = {}", docsToSend.size());
                 log.info("remainDocs.size() = {}", remainDocs.size());
@@ -114,4 +117,15 @@ public class QscFeedingUtils {
         log.error("Problems, count of not pushed documents = {}", docsToSend.size() + remainDocs.size());
         throw new RuntimeException(String.format("Could not send the data to the server, (RETRY_COUNT = %o)", RETRY_COUNT));
     }
+
+    private static void doYouWantToContinue(int numberOfTrying) {
+        if (numberOfTrying > 1) {
+            System.out.println("\n\nDo you want to continue? Press 1 to stop, or any input to continue");
+            String input = scanner.nextLine();
+            if ("1".equals(input)) {
+                throw new RuntimeException("Canceled by user");
+            }
+        }
+    }
+
 }
