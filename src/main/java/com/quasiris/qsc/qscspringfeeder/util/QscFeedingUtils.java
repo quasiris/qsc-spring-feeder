@@ -99,8 +99,7 @@ public class QscFeedingUtils {
             numberOfTrying++;
             doYouWantToContinue(numberOfTrying);
             try {
-                log.info("docsToSend.size() = {}", docsToSend.size());
-                log.info("remainDocs.size() = {}", remainDocs.size());
+                logData(docsToSend, remainDocs);
                 long startTime = System.nanoTime();
                 HttpEntity<List<QscFeedingDocument>> request = new HttpEntity<>(docsToSend, headers);
                 ObjectNode jsonNode = restTemplate.postForObject(uri, request, ObjectNode.class);
@@ -116,6 +115,12 @@ public class QscFeedingUtils {
         }
         log.error("Problems, count of not pushed documents = {}", docsToSend.size() + remainDocs.size());
         throw new RuntimeException(String.format("Could not send the data to the server, (RETRY_COUNT = %o)", RETRY_COUNT));
+    }
+
+    private static void logData(List<QscFeedingDocument> docsToSend, List<QscFeedingDocument> remainDocs) {
+        log.info("docsToSend.size() = {}", docsToSend.size());
+        log.info("remainDocs.size() = {}", remainDocs.size());
+        System.out.println("Full count of not pushed documents = " + (docsToSend.size() + remainDocs.size()));
     }
 
     private static void doYouWantToContinue(int numberOfTrying) {
