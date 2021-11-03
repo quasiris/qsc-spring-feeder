@@ -7,9 +7,9 @@ import com.quasiris.qsc.qscspringfeeder.dto.QscFeedingDocument;
 import com.quasiris.qsc.qscspringfeeder.dto.transform.Attribute;
 import com.quasiris.qsc.qscspringfeeder.dto.transform.AttributeDataType;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.lang.Nullable;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -30,8 +30,8 @@ public class TransformHelper {
     private static final Pattern splitPattern = Pattern.compile("\\s*,\\s*");
 
 
-    public static List<QscFeedingDocument> transformRawParamsToHeaderPayloadStructure(String srcFile) throws IOException {
-        List<LinkedHashMap<String, Object>> data = objectMapper.readValue(new ClassPathResource(srcFile).getFile(), new TypeReference<>() {
+    public static List<QscFeedingDocument> transformRawParamsToHeaderPayloadStructure(File file) throws IOException {
+        List<LinkedHashMap<String, Object>> data = objectMapper.readValue(file, new TypeReference<>() {
         });
         List<QscFeedingDocument> resultDocs = new ArrayList<>();
         for (LinkedHashMap<String, Object> feedingEntry : data) {

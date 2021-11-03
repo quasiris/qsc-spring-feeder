@@ -13,7 +13,7 @@ public class Reporter {
     public static final ObjectMapper objectMapper = new ObjectMapper();
     public static final RestTemplate restTemplate = new RestTemplate();
 
-    public static void report(List<?> responses, String reportPath) throws IOException {
+    public static void report(List<?> responses, String reportPath) {
         try {
             if (reportPath != null && !reportPath.trim().isEmpty()) {
                 File resultFile = new File(reportPath);

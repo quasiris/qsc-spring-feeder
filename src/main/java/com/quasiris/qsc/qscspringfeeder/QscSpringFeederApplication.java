@@ -11,6 +11,7 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.core.io.ClassPathResource;
 
 import java.io.File;
 import java.io.IOException;
@@ -59,7 +60,7 @@ public class QscSpringFeederApplication implements ApplicationRunner {
             docs = QscFeedingUtils.readDocumentsFromFile(new File(continuePath));
         } else {
 //            docs = QscFeedingUtils.readDocumentsFromFile(new ClassPathResource(filePath).getFile());
-            docs = TransformHelper.transformRawParamsToHeaderPayloadStructure(filePath);
+            docs = TransformHelper.transformRawParamsToHeaderPayloadStructure(new ClassPathResource(filePath).getFile());
         }
 
         log.debug("docs.size() = {}", docs.size());
