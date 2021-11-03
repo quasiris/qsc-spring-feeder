@@ -28,7 +28,7 @@ public class QscFeedingUtils {
 
     public static List<QscFeedingDocument> readDocumentsFromFile(File file) throws IOException {
         return objectMapper.readValue(file, new TypeReference<>() {
-                });
+        });
     }
 
     public static String constructUrl(String prefix, String tenant, String feedingCode) {
@@ -103,6 +103,7 @@ public class QscFeedingUtils {
                 ObjectNode jsonNode = restTemplate.postForObject(uri, request, ObjectNode.class);
                 long endTime = System.nanoTime();
                 long durationMilliseconds = (endTime - startTime) / 1000000;
+                log.info("Success!");
                 log.info("durationMilliseconds = {}", durationMilliseconds);
                 jsonNode.put("durationMilliseconds", durationMilliseconds);
                 return jsonNode;
@@ -110,6 +111,7 @@ public class QscFeedingUtils {
                 log.error("e: ", e);
             }
         }
+        log.error("Problems, count of not pushed documents = {}", docsToSend.size() + remainDocs.size());
         throw new RuntimeException(String.format("Could not send the data to the server, (RETRY_COUNT = %o)", RETRY_COUNT));
     }
 }
