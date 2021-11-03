@@ -3,6 +3,7 @@ package com.quasiris.qsc.qscspringfeeder.util;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.quasiris.qsc.qscspringfeeder.dto.QscFeedingDocument;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
@@ -96,10 +97,16 @@ public class QscFeedingUtils {
         while (numberOfTrying <= RETRY_COUNT) {
             numberOfTrying++;
             try {
-                log.debug("docsToSend.size() = {}", docsToSend.size());
+                log.info("docsToSend.size() = {}", docsToSend.size());
                 log.info("remainDocs.size() = {}", remainDocs.size());
+                long startTime = System.nanoTime();
                 HttpEntity<List<QscFeedingDocument>> request = new HttpEntity<>(docsToSend, headers);
-                return restTemplate.postForObject(uri, request, JsonNode.class);
+                ObjectNode jsonNode = restTemplate.postForObject(uri, request, ObjectNode.class);
+                long endTime = System.nanoTime();
+                long durationMilliseconds = (endTime - startTime) / 1000000;
+                log.info("durationMilliseconds = {}", durationMilliseconds);
+                jsonNode.put("durationMilliseconds", durationMilliseconds);
+                return jsonNode;
             } catch (Exception e) {
                 log.error("e: ", e);
             }
