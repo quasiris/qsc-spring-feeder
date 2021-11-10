@@ -1,4 +1,4 @@
-package com.quasiris.qsc.qscspringfeeder.dto.category;
+package com.quasiris.qsc.qscspringfeeder.dto.category.tabed;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
