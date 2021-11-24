@@ -13,9 +13,13 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class QscFeedingUtils {
@@ -28,26 +32,32 @@ public class QscFeedingUtils {
     public static final int RETRY_COUNT = 5;
     static Scanner scanner = new Scanner(System.in);
 
+    public static List<QscFeedingDocument> readDocumentsFromDirectory(Path path) throws IOException {
+        return Files.list(path)
+                .map(Path::toFile)
+                .map(f -> {
+                    try {
+                        return readDocumentsFromFile(f);
+                    } catch (IOException e) {
+                        throw new RuntimeException("Problems reading files");
+                    }
+                })
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+    }
+
     public static List<QscFeedingDocument> readDocumentsFromFile(File file) throws IOException {
         return objectMapper.readValue(file, new TypeReference<>() {
         });
     }
 
-    public static String constructUrl(String prefix, String tenant, String feedingCode) {
-        return String.format("%s/api/v1/data/bulk/qsc/%s/%s", prefix, tenant, feedingCode);
-    }
-
     public static List<JsonNode> postFeeds(List<QscFeedingDocument> docs,
-                                           String xQscToken,
-                                           String urlPrefix,
-                                           String tenant,
-                                           String feedingCode,
+                                           String fullUrl, String xQscToken,
                                            int batchSize) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.add(X_QSC_TOKEN_HEADER_NAME, xQscToken);
-        String uri = constructUrl(urlPrefix, tenant, feedingCode);
-        return requestWithBatch(docs, headers, uri, batchSize);
+        return requestWithBatch(docs, headers, fullUrl, batchSize);
     }
 
     private static List<JsonNode> requestWithBatch(List<QscFeedingDocument> docs,
