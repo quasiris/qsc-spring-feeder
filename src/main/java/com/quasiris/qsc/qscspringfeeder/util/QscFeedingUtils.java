@@ -38,12 +38,12 @@ public class QscFeedingUtils {
 
         List<Object> result = new ArrayList<>();
         for (File file : files) {
-            result.add(readDocumentsFromFile(file));
+            result.addAll(readDocumentsFromFile(file));
         }
         return result;
     }
 
-    public static Object readDocumentsFromFile(File file) throws IOException {
+    public static List<Object> readDocumentsFromFile(File file) throws IOException {
         return objectMapper.readValue(file, new TypeReference<>() {
         });
     }
