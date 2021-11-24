@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
@@ -32,26 +31,29 @@ public class QscFeedingUtils {
     public static final int RETRY_COUNT = 5;
     static Scanner scanner = new Scanner(System.in);
 
-    public static List<QscFeedingDocument> readDocumentsFromDirectory(Path path) throws IOException {
-        return Files.list(path)
+    public static List<Object> readDocumentsFromDirectory(Path path) throws IOException {
+        List<File> files = Files.list(path)
                 .map(Path::toFile)
-                .map(f -> {
-                    try {
-                        return readDocumentsFromFile(f);
-                    } catch (IOException e) {
-                        throw new RuntimeException("Problems reading files");
-                    }
-                })
-                .flatMap(Collection::stream)
                 .collect(Collectors.toList());
+
+        List<Object> result = new ArrayList<>();
+        for (File file : files) {
+            result.addAll(readDocumentsFromFile(file));
+        }
+        return result;
     }
 
-    public static List<QscFeedingDocument> readDocumentsFromFile(File file) throws IOException {
+    public static List<Object> readDocumentsFromFile(File file) throws IOException {
         return objectMapper.readValue(file, new TypeReference<>() {
         });
     }
 
-    public static List<JsonNode> postFeeds(List<QscFeedingDocument> docs,
+    public static List<QscFeedingDocument> readQscDocumentsFromFile(File file) throws IOException {
+        return objectMapper.readValue(file, new TypeReference<>() {
+        });
+    }
+
+    public static List<JsonNode> postFeeds(List<Object> docs,
                                            String fullUrl, String xQscToken,
                                            int batchSize) {
         HttpHeaders headers = new HttpHeaders();
@@ -60,7 +62,7 @@ public class QscFeedingUtils {
         return requestWithBatch(docs, headers, fullUrl, batchSize);
     }
 
-    private static List<JsonNode> requestWithBatch(List<QscFeedingDocument> docs,
+    private static List<JsonNode> requestWithBatch(List<Object> docs,
                                                    HttpHeaders headers,
                                                    String uri,
                                                    int batchSize) {
@@ -68,7 +70,7 @@ public class QscFeedingUtils {
             throw new IllegalArgumentException("Batch size is less than 0");
         }
         List<JsonNode> responses = new ArrayList<>();
-        List<QscFeedingDocument> docsToSend = new ArrayList<>(docs);
+        List<Object> docsToSend = new ArrayList<>(docs);
         try {
             while (!docsToSend.isEmpty()) {
                 responses.add(sendBatch(docsToSend, headers, uri, batchSize));
@@ -81,7 +83,7 @@ public class QscFeedingUtils {
         return responses;
     }
 
-    private static void tryReportPushedAndRemainData(List<JsonNode> responses, List<QscFeedingDocument> docsToSend) {
+    private static void tryReportPushedAndRemainData(List<JsonNode> responses, List<Object> docsToSend) {
         try {
             Reporter.report(responses, PUSHED_ITEMS_REPORT_PATH);
             Reporter.report(docsToSend, REMAIN_ITEMS_REPORT_PATH);
@@ -91,9 +93,9 @@ public class QscFeedingUtils {
         }
     }
 
-    private static JsonNode sendBatch(List<QscFeedingDocument> docs, HttpHeaders headers, String uri, int batchSize) {
-        List<QscFeedingDocument> docsToSend = docs.subList(0, Math.min(batchSize, docs.size()));
-        List<QscFeedingDocument> remainDocs = new ArrayList<>();
+    private static JsonNode sendBatch(List<Object> docs, HttpHeaders headers, String uri, int batchSize) {
+        List<Object> docsToSend = docs.subList(0, Math.min(batchSize, docs.size()));
+        List<Object> remainDocs = new ArrayList<>();
         if (docsToSend.size() != docs.size()) {
             remainDocs.addAll(docs.subList(batchSize, docs.size()));
         }
@@ -103,7 +105,7 @@ public class QscFeedingUtils {
         return result;
     }
 
-    private static JsonNode tryToSendBatch(HttpHeaders headers, String uri, List<QscFeedingDocument> docsToSend, List<QscFeedingDocument> remainDocs) {
+    private static JsonNode tryToSendBatch(HttpHeaders headers, String uri, List<Object> docsToSend, List<Object> remainDocs) {
         int numberOfTrying = 0;
         while (numberOfTrying <= RETRY_COUNT) {
             numberOfTrying++;
@@ -111,7 +113,7 @@ public class QscFeedingUtils {
             try {
                 logData(docsToSend, remainDocs);
                 long startTime = System.nanoTime();
-                HttpEntity<List<QscFeedingDocument>> request = new HttpEntity<>(docsToSend, headers);
+                HttpEntity<List<Object>> request = new HttpEntity<>(docsToSend, headers);
                 ObjectNode jsonNode = restTemplate.postForObject(uri, request, ObjectNode.class);
                 long endTime = System.nanoTime();
                 long durationMilliseconds = (endTime - startTime) / 1000000;
@@ -127,7 +129,7 @@ public class QscFeedingUtils {
         throw new RuntimeException(String.format("Could not send the data to the server, (RETRY_COUNT = %o)", RETRY_COUNT));
     }
 
-    private static void logData(List<QscFeedingDocument> docsToSend, List<QscFeedingDocument> remainDocs) {
+    private static void logData(List<Object> docsToSend, List<Object> remainDocs) {
         log.info("docsToSend.size() = {}", docsToSend.size());
         log.info("remainDocs.size() = {}", remainDocs.size());
         System.out.println("Full count of not pushed documents = " + (docsToSend.size() + remainDocs.size()));

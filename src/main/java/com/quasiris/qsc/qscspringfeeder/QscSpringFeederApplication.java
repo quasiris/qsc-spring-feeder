@@ -50,7 +50,7 @@ public class QscSpringFeederApplication implements ApplicationRunner {
 
         log.debug("url = {}", url);
         log.debug("batchSize = {}", batchSize);
-        List<QscFeedingDocument> docs;
+        List<Object> docs;
         if (continuePreviousWork) {
             docs = QscFeedingUtils.readDocumentsFromFile(new File(continuePath));
         } else {
