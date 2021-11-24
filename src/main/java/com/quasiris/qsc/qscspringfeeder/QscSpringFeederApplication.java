@@ -52,7 +52,8 @@ public class QscSpringFeederApplication implements ApplicationRunner {
         log.debug("batchSize = {}", batchSize);
         List<Object> docs;
         if (continuePreviousWork) {
-            docs = QscFeedingUtils.readDocumentsFromFile(new File(continuePath));
+            docs = new ArrayList<>();
+            docs.add(QscFeedingUtils.readDocumentsFromFile(new File(continuePath)));
         } else {
             docs = QscFeedingUtils.readDocumentsFromDirectory(Path.of(directory));
 //            docs = QscFeedingUtils.readDocumentsFromFile(new ClassPathResource(filePath).getFile());
