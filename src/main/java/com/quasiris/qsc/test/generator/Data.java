@@ -1,11 +1,11 @@
 package com.quasiris.qsc.test.generator;
 
-public class Data {
+public class Data<T> {
 
-    private String value;
+    private T value;
     private Long count;
 
-    public Data(String value, Long count) {
+    public Data(T value, Long count) {
         this.value = value;
         this.count = count;
     }
@@ -15,7 +15,7 @@ public class Data {
      *
      * @return Value for property 'value'.
      */
-    public String getValue() {
+    public T getValue() {
         return value;
     }
 
@@ -24,7 +24,7 @@ public class Data {
      *
      * @param value Value to set for property 'value'.
      */
-    public void setValue(String value) {
+    public void setValue(T value) {
         this.value = value;
     }
 

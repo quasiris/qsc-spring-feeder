@@ -7,9 +7,9 @@ import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class TestDataGenerator {
+public class TestDataGenerator<T> {
 
-    private List<Data> data = new ArrayList<>();
+    private List<Data<T>> data = new ArrayList<>();
 
     private Long totalCount;
 
@@ -26,20 +26,23 @@ public class TestDataGenerator {
         this.data.add(data);
     }
 
-    public String get(Long i) {
+    public T get(Long i) {
         Long current = i % totalCount;
         Long offset = 0L;
         for(Data d : data) {
             offset = offset + d.getCount();
             if(current < offset) {
-                return d.getValue();
+                return (T) d.getValue();
             }
         }
         return null;
     }
 
-    public List<String> getMultiple(Long i, int min, int max) {
-        Set<String> ret = new LinkedHashSet<>();
+
+
+
+    public List<T> getMultiple(Long i, int min, int max) {
+        Set<T> ret = new LinkedHashSet<>();
         int valueCount = getRandom(min, max);
         if(valueCount >= data.size()) {
             return data.stream().map(d -> d.getValue()).collect(Collectors.toList());
